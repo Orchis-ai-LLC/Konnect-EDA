@@ -1,0 +1,44 @@
+Konnect-EDA Commercial License
+
+Copyright (c) 2026 Orchis.ai LLC. All rights reserved.
+
+Konnect-EDA ("the Software") is commercial, closed-source software owned by
+Orchis.ai LLC ("Orchis"). The Software means the binaries, plugin packages and
+documentation that Orchis publishes. Its source code is not published and is
+not licensed to you.
+
+1. Free during the beta. Until Orchis releases Konnect-EDA version 1.0, you may
+   download, install and use the Software free of charge, for personal or
+   business work.
+
+2. Version 1.0 and later. From version 1.0, every installation will need a
+   license key, free ones included. Personal, hobby and student use will stay
+   free; business use will need a paid commercial license. Orchis will publish
+   the terms for version 1.0 with that release.
+
+3. Restrictions. You may not:
+   a. redistribute, sell, rent, lease or sublicense the Software, or host it
+      for others to use (share a link to the official download page instead);
+   b. reverse engineer, decompile or disassemble the Software, except to the
+      extent applicable law allows it despite this restriction;
+   c. remove or change this notice or any copyright notice in the Software.
+
+4. Your designs are yours. Boards, schematics and other files you create with
+   the Software belong to you. Orchis claims no rights in them.
+
+5. Third-party components. The Software includes components from other
+   projects, which remain under their own licenses. See THIRD_PARTY.md.
+
+6. Ending. This license ends automatically if you break its terms. When it
+   ends, you must stop using the Software and delete your copies.
+
+7. No warranty. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+8. Limitation of liability. IN NO EVENT WILL ORCHIS BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE, ARISING
+   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE. You are
+   responsible for checking any design before you have it manufactured.
+
+Questions and business licensing: chris@orchis.ai
