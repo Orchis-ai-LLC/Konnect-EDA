@@ -1,0 +1,15 @@
+{
+  "_comment_1": "Save as `.mcp.json` in the root of your Claude Code project.",
+  "_comment_2": "Substitute <YOU> with your Windows username.",
+  "_comment_3": "The --config arg is optional — Konnect works with defaults out of the box.",
+
+  "mcpServers": {
+    "konnect": {
+      "command": "C:\\Users\\<YOU>\\Documents\\KiCad\\10.0\\3rdparty\\plugins\\com_github_mixelpixx_konnect\\bin\\konnect.exe",
+      "args": [
+        "--config",
+        "C:\\Users\\<YOU>\\konnect-settings.json"
+      ]
+    }
+  }
+}
