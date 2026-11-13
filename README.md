@@ -2,21 +2,29 @@
 
 <div align="center">
 
-<img src="resources/images/KiCAD-MCP-Server-rust.svg" alt="KiCAD-MCP-Server Logo" height="240" />
+<img src="resources/images/KiCAD-MCP-Server-rust.svg" alt="Konnect-EDA logo" height="200" />
 
+# Konnect-EDA
 
-# Konnect-EDA *BETA Release
+**AI-assisted PCB design for KiCad 10**
+
+[Website](https://konnect-eda.orchis.ai) ·
+[Download](https://github.com/Orchis-ai-LLC/Konnect-EDA/releases) ·
+[Licensing](https://konnect-eda.orchis.ai/licensing/) ·
+[Report an issue](https://github.com/Orchis-ai-LLC/Konnect-EDA/issues) ·
+[Orchis.ai](https://orchis.ai)
 
 </div>
 
-**AI-assisted PCB design for KiCAD 10.** Konnect is a native KiCAD plugin — a single
-Rust binary — that lets Claude and other AI assistants design schematics and PCBs
-through the [Model Context Protocol](https://modelcontextprotocol.io) (MCP).
+**Your AI designs the board. KiCad stays in charge.** Konnect-EDA is a native KiCad
+plugin — a single Rust binary — that lets Claude, Codex and other AI assistants
+design schematics and PCBs through the [Model Context Protocol](https://modelcontextprotocol.io)
+(MCP). The result is an ordinary KiCad project you can open and edit.
 
-**226 tools across 21 on-demand toolsets.** Schematic capture, PCB layout and
+**228 tools across 21 on-demand toolsets.** Schematic capture, PCB layout and
 routing, ERC/DRC, design-review audits, JLCPCB part search, reference
 circuits, and a full manufacturing export pipeline — with bundled skills and agents
-that teach Claude KiCAD conventions out of the box.
+that teach Claude KiCad conventions out of the box.
 
 > **Status: beta, and free to use until 1.0.** The core toolchain is tested and
 > working, but this is a young release and it wants real-world mileage. Bug
@@ -24,17 +32,14 @@ that teach Claude KiCAD conventions out of the box.
 > [Issues](https://github.com/Orchis-ai-LLC/Konnect-EDA/issues). Konnect-EDA is
 > closed source; to help build it, [sign up as a contributor](https://orchis.ai/konnect/join).
 
-> ## Add realtime research to KiCAD MCP and Konnect. Introducing Nimrod
->
-> [**Nimrod**](https://nimrod.orchis.ai) is our web-research MCP server:
-> quality-scored Google search, clean webpage extraction, and deep multi-source
-> research. Design the board with Konnect while Nimrod pulls live parts availability, datasheets,
-> and errata — no more guessing from year-old training data
->
-> - Works with claude.ai, Claude Desktop, Claude Code, VS Code, and any MCP client
-> - 1 credit = 1 search · extraction always free · free 50-credit trial, no card
-> - Official MCP Registry: [`ai.orchis/nimrod`](https://registry.modelcontextprotocol.io)
+**Runs on your machine.** Konnect-EDA sends nothing to Orchis.ai: no telemetry, no
+analytics, no update checks. See
+[what leaves your machine](https://konnect-eda.orchis.ai/#leaves).
 
+**Coming from KiCAD MCP Server?** Konnect-EDA grew out of
+[KiCAD MCP Server](https://github.com/mixelpixx/KiCAD-MCP-Server), which stays open
+source and maintained. Konnect-EDA works through KiCad's official IPC API and
+`kicad-cli` instead of SWIG, which KiCad 11 removes.
 
 ## What it does
 
@@ -44,7 +49,7 @@ directly:
 - **Place and wire schematic components** — add resistors, ICs, connectors; wire them
   together by pin name
 - **Lay out the PCB** — place, move, rotate, and route footprints in real time via
-  KiCAD's IPC API, with full undo/redo integration
+  KiCad's IPC API, with full undo/redo integration
 - **Run design checks** — ERC, DRC, connectivity validation, decoupling audits,
   power-rail review, BOM health checks
 - **Export production files** — Gerbers, drill, BOM, pick-and-place, 3D models, PDF
@@ -60,28 +65,25 @@ The full tool catalog is in [tool-directory.md](tool-directory.md).
 
 | Layer | Mechanism |
 |-------|-----------|
-| Schematic editing | Direct `.kicad_sch` S-expression editing with atomic writes (no KiCAD required) |
+| Schematic editing | Direct `.kicad_sch` S-expression editing with atomic writes (no KiCad required) |
 | PCB editing | KiCad 10 IPC API (NNG + protobuf) — real-time and undo-aware; single-footprint placement has a safe headless fallback |
 | Specctra routing | Revision-bound Rust DSN export, local Freerouting MCP routing, and strict one-transaction SES import; an authenticated KiCad 10 native-export bridge is explicit opt-in |
 | Exports & checks | `kicad-cli` subprocess (Gerber, PDF, ERC, DRC, …) |
 | Transport | MCP JSON-RPC over stdio (default), or Streamable HTTP (`transport = "http"` / `"both"`) |
 
-Explore the request path and safety boundaries in the
-[interactive architecture diagrams](https://neusse.github.io/konnect-archify-tool/).
-
 ## Installation
 
-### From the KiCAD Plugin Manager (recommended)
+### From the KiCad Plugin Manager (recommended)
 
 1. Download the package for your OS from [Releases](https://github.com/Orchis-ai-LLC/Konnect-EDA/releases):
    `konnect-pcm-v<version>-windows.zip`, `-macos.zip`, or `-linux.zip`. Each
    bundles that platform's server binary — the macOS package is a universal
    build, so one download covers Apple Silicon and Intel. (The `konnect-pcm-*`
-   assets are the KiCAD plugin packages; the other archives are standalone
+   assets are the KiCad plugin packages; the other archives are standalone
    server binaries.)
-2. Open KiCAD 10 → **Plugin and Content Manager**
+2. Open KiCad 10 → **Plugin and Content Manager**
 3. Click **Install from File** and select the zip
-4. Restart KiCAD
+4. Restart KiCad
 
 Verify: open the **PCB Editor** → **Tools → External Plugins** → you should see
 **Konnect**.
@@ -204,7 +206,7 @@ the Windows build yet.
 
 ## Setup with Claude Desktop
 
-After a PCM install, the server binary lives in your KiCAD documents folder:
+After a PCM install, the server binary lives in your KiCad documents folder:
 
 ```
 C:\Users\<YOU>\Documents\KiCad\10.0\3rdparty\plugins\com_github_mixelpixx_konnect\bin\konnect.exe
@@ -234,24 +236,24 @@ schematic-viewer.exe path\to\your\root_schematic.kicad_sch
 ```
 
 Point it at the root sheet of a hierarchical design and every sub-sheet is rendered
-too, with a depth-indented sheet selector in the toolbar. Edits saved from KiCAD (or
+too, with a depth-indented sheet selector in the toolbar. Edits saved from KiCad (or
 made by the AI through the schematic tools) re-render only the sheets that changed
 and refresh the view live — rendering runs against temp-folder snapshots, so the
-viewer never blocks KiCAD from saving. Pan with click-drag, zoom with the wheel,
+viewer never blocks KiCad from saving. Pan with click-drag, zoom with the wheel,
 `0` to fit, `R` to refresh, drag-and-drop to open a different file. Also launchable
 by the AI via the `open_schematic_viewer` tool.
 
-Needs the WebView2 runtime (pre-installed on Windows 10/11) and a KiCAD install for
+Needs the WebView2 runtime (pre-installed on Windows 10/11) and a KiCad install for
 `kicad-cli` (auto-discovered, or pass `--kicad-cli <path>`). The viewer ships in
 the plugin package, beside the server binary.
 
 ## Requirements
 
-- KiCAD 10 (Windows is the most-tested platform; macOS works from the release
+- KiCad 10 (Windows is the most-tested platform; macOS works from the release
   binaries — see the [macOS section](#macos) above. Linux passes the automated
   tests but hasn't had per-platform QA yet)
-- `kicad-cli` (ships with KiCAD — used for exports, ERC, DRC)
-- For PCB tools: KiCAD running with the target board open (IPC API)
+- `kicad-cli` (ships with KiCad — used for exports, ERC, DRC)
+- For PCB tools: KiCad running with the target board open (IPC API)
 
 ## License
 
@@ -267,18 +269,19 @@ Konnect-EDA is commercial, closed-source software from Orchis.ai LLC. See
   with Konnect-EDA belong to you.
 - **Please don't pass the downloads on.** Share a link to this page instead.
 
+Pricing and licensing details: [konnect-eda.orchis.ai/licensing](https://konnect-eda.orchis.ai/licensing/).
 Questions about business licensing: [chris@orchis.ai](mailto:chris@orchis.ai).
 
 ## Troubleshooting
 
-**Plugin doesn't appear in KiCAD** — install via the Plugin and Content Manager (not
-manual copy), then restart KiCAD.
+**Plugin doesn't appear in KiCad** — install via the Plugin and Content Manager (not
+manual copy), then restart KiCad.
 
-**PCB tools return "KiCAD must be running with the board loaded"** — open KiCAD
+**PCB tools return "KiCAD must be running with the board loaded"** — open KiCad
 with that board first; most PCB tools talk to the running PCB editor. Only an
-unreachable KiCAD produces that message: if KiCAD is running and the tool
+unreachable KiCad produces that message: if KiCad is running and the tool
 refuses anyway, the error is the tool's own reason for refusing.
-`place_component` can fall back to a closed board file when no KiCAD process
+`place_component` can fall back to a closed board file when no KiCad process
 is reachable.
 
 **"kicad-cli not found"** — common install paths are auto-detected; set the path
@@ -288,14 +291,32 @@ works only when passed with `--config`.)
 
 See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for socket setup, tools
 that don't appear after `load_toolset`, and transaction recovery. Still stuck?
-[Open an issue](https://github.com/Orchis-ai-LLC/Konnect-EDA/issues) or ask on Discord.
+[Open an issue](https://github.com/Orchis-ai-LLC/Konnect-EDA/issues).
 
 ## Support
 
-- Community Discord: [join the Konnect community](https://discord.gg/NVp9RGMmDu)
-  for installation help, AI-client setup, design-workflow discussion, and live
-  project-status updates
+- Website: [konnect-eda.orchis.ai](https://konnect-eda.orchis.ai)
 - Bug reports and feature requests: [GitHub Issues](https://github.com/Orchis-ai-LLC/Konnect-EDA/issues)
 - Contributing code: Konnect-EDA is closed source, and contributors work by
   invitation. [Sign up here](https://orchis.ai/konnect/join).
 - Licensing questions: [chris@orchis.ai](mailto:chris@orchis.ai)
+- Privacy: [orchis.ai/privacy](https://orchis.ai/privacy/)
+
+## Also from Orchis.ai: Nimrod
+
+[**Nimrod**](https://nimrod.orchis.ai) is our web-research MCP server:
+quality-scored Google search, clean webpage extraction, and deep multi-source
+research. Design the board with Konnect-EDA while Nimrod pulls live parts
+availability, datasheets and errata, instead of guessing from year-old training data.
+
+- Works with claude.ai, Claude Desktop, Claude Code, VS Code, and any MCP client
+- 1 credit = 1 search · extraction always free · free 50-credit trial, no card
+- Official MCP Registry: [`ai.orchis/nimrod`](https://registry.modelcontextprotocol.io)
+
+---
+
+<div align="center">
+
+© 2026 Orchis.ai LLC · [orchis.ai](https://orchis.ai)
+
+</div>

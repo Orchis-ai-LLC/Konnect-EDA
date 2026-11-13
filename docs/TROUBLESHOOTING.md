@@ -370,11 +370,12 @@ native Specctra bridge**, save, and close the dialog. The status changes to
 running after the setting is applied. The requested board must be saved and be
 the active PCB Editor document.
 
-`export_specctra_dsn` defaults to `native_bridge_mode: "prefer"`. Its response says
-whether `method` was `kicad10_native_actionplugin` or `kicad_ipc_snapshot` and
-includes bounded `native_bridge_diagnostics`. Use `native_bridge_mode: "require"`
-when testing the native path so an unavailable bridge is an error instead of a
-fallback. Use `disable` to force Rust output.
+`export_specctra_dsn` defaults to `native_bridge_mode: "disable"`, which uses the
+Rust exporter without trying the native bridge. Its response says whether
+`method` was `kicad10_native_actionplugin` or `kicad_ipc_snapshot` and includes
+bounded `native_bridge_diagnostics`. Use `native_bridge_mode: "prefer"` to try
+the native bridge and fall back to Rust when it is unavailable, or `require`
+when testing the native path so an unavailable bridge is an error.
 
 The bridge listens only on an ephemeral IPv4 loopback port and requires a
 per-session bearer token. Registration and temporary DSN files live under the
@@ -479,7 +480,7 @@ callable tools, the fix is to make the *first* listing complete:
 ```
 
 in `konnect.toml` in the working directory, or a `settings.json` beside the binary. Every toolset is then loaded at
-startup, so `tools/list` carries all 233 tools from the first call.
+startup, so `tools/list` carries all 235 tools from the first call.
 
 It is off by default because it costs what the router exists to save: roughly
 25K tokens per listing instead of ~2K. Turn it on only if your client needs it.

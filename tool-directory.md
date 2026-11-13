@@ -6,7 +6,7 @@ Canonical reference for every MCP tool exposed by Konnect. Generated from the Ru
 ## Overview
 
 - **21 toolsets** organized into 10 categories
-- **226 registered tools** + **7 always-visible meta-tools** = **233 total**
+- **228 registered tools** + **7 always-visible meta-tools** = **235 total**
 - **Discovery pattern**: the server pre-loads only the **starter kit** (`project`, `config`) so baseline `tools/list` costs ~2K tokens instead of ~23K. The LLM reads `list_toolboxes` → calls `load_toolset(name)` to expose additional tools on demand; `unload_toolset(name)` prunes them. `tools/list_changed` is notified on every mutation. If the LLM calls a tool whose toolset isn't loaded, the error names the owning toolset so recovery is a single `load_toolset` hop. `load_toolset` also accepts an array of names to load several toolsets with a single `tools/list` refresh.
 - **Observability**: every `tools/call` is recorded — ring buffer of the last 100 calls + per-tool counters + JSONL at `<konnect dir>/logs/calls.jsonl`. The LLM self-diagnoses via `get_recent_calls` and `server_stats`.
 
@@ -190,7 +190,7 @@ and Windows servers do not.
 | `export_netlist_summary` | Return a human-readable JSON netlist summary (components, nets, pin counts). Nets come from labels and power symbols. Does not require kicad-cli. |
 | `run_erc` | Run the Electrical Rules Check via kicad-cli and return violations filtered by severity. A report that is not in kicad-cli's ERC shape is an error, never zero violations. |
 | `fix_connectivity` | Scan for near-miss wire endpoints within `snap_tolerance` of a pin/label and snap them into place. Supports `dry_run`. |
-| `update_pcb_from_schematic` | Plan or atomically apply saved schematic hierarchy changes to the live KiCad PCB. Defaults to a non-mutating dry run; apply requires its exact plan revision. Preserves placement, routing, board-only footprints, and footprint artwork. A symbol with no footprint assigned is reported under `unassigned_footprints` and the sync proceeds for every other component. A library footprint that cannot be placed, or a connected pad its footprint does not have, makes the dry run a conflict whose diagnostics name the footprint and every part that needs it. |
+| `update_pcb_from_schematic` | Plan or atomically apply saved schematic hierarchy changes to the live KiCad PCB. Defaults to a non-mutating dry run; apply requires its exact plan revision. Preserves placement, routing, board-only footprints, and footprint artwork. A symbol with no footprint assigned is reported under `unassigned_footprints` and the sync proceeds for every other component. As in KiCad's Update PCB, a board footprint whose footprint ID differs from the schematic is kept and listed under `kept_footprints`, grouped, and never replaced; one that also needs other changes is left unchanged there as `footprint_id_held`, unless it is renamed. A board footprint whose reference the schematic gives to another identity is kept the same way when no schematic component claims that footprint's identity; when one does, the plan is a `reference_identity_conflict`. To replace or re-link a footprint, use KiCad's Update PCB with Replace footprints or Re-link ticked. A library footprint that cannot be placed, or a connected pad its footprint does not have, makes the dry run a conflict whose diagnostics name the footprint and every part that needs it. |
 
 ### `sch_hierarchy` · 14 tools
 **Purpose:** Sheet files and hierarchical sheets: create a schematic file and set its page size, add/edit/move/delete/duplicate a sheet, hierarchy and page-numbering queries, import/add/edit/delete sheet pins, pin/label sync validation.
@@ -235,8 +235,8 @@ and Windows servers do not.
 | `add_zone` | Add a copper fill zone polygon on a specified layer and net, with optional `name`, `priority` and `pad_connection` (`solid`/`thermal`/`none`). Tries KiCad IPC first — a live board gets the zone through the API and a refill, so it appears immediately and is undoable — and falls back to an S-expression file insert only when no live KiCad answers, reporting `source` and a `warning` when it does. Refuses a net the board does not declare rather than binding copper to net 0, and refuses outright if KiCad answers but rejects the request. |
 | `import_svg_logo` | Import an SVG file as filled silkscreen/copper artwork (curves flattened to polygons). |
 
-### `pcb_components` · 18 tools
-**Purpose:** Place, refresh, move, rotate, flip, align, duplicate and repair PCB footprints; inspect pads and 3D models.
+### `pcb_components` · 20 tools
+**Purpose:** Place, refresh, move, rotate, flip, align, duplicate and repair PCB footprints; inspect pads and 3D models; inspect and edit a placed footprint's graphics.
 
 | Tool | Description |
 |------|-------------|
@@ -250,6 +250,8 @@ and Windows servers do not.
 | `repair_corrupted_footprints` | Dry-run and atomically repair the exact legacy corruption from issue #244: anonymous layerless pads that replaced footprint drawing shapes. Restores the affected shapes from the registered library while preserving live placement, identity, pad nets and non-shape children; apply requires the dry-run revision and is one KiCAD undo commit. |
 | `find_component` | Find a footprint by reference designator and return its position. |
 | `set_placed_footprint_models` | Inspect, append, replace, or remove one exact indexed 3D-model entry on a placed footprint through live KiCad IPC. Mutations require the latest inspection revision, update the complete parent footprint in one undo step, preserve unrelated entries, and return fresh readback. There is no open-board file fallback. |
+| `list_board_footprint_graphics` | List the graphic shapes (silkscreen, fabrication, courtyard and similar artwork) inside a placed footprint through live KiCad IPC, with points in footprint-local millimetres as the `.kicad_mod` shows them, optionally on one layer. Reports each shape's UUID, kind, layer, outline and hole counts, and whether it is an editable polygon. No pads, texts, fields, zones or models. |
+| `edit_board_footprint_graphic` | Replace the vertices of one polygon inside a placed footprint, by UUID, through live KiCad IPC. Points are footprint-local millimetres; the outline stays closed and every other property is kept. Refuses other shape kinds, several outlines and holes before writing. One undo step, proven by fresh readback; an unconfirmed readback is reported as uncertain. |
 | `get_component_pads` | Return live board-space pad positions, layers, and net assignments when KiCAD IPC is reachable; fall back to the saved board only when IPC is unreachable. A pad whose saved net node is present but unreadable reports `null` rather than an empty string. |
 | `get_pad_position` | Return the live board-space position, layers, and net assignment of a specific pad number. |
 | `get_component_list` | List all footprints on the board with positions, layers, and values. |
@@ -322,7 +324,7 @@ and Windows servers do not.
 
 | Tool | Description |
 |------|-------------|
-| `create_footprint` | Create a new footprint (`.kicad_mod`) file from a pad layout description. Each pad may set its own `layers` (KiCad file names, written in KiCad's order), `rotation` (normalised to 0–360) and, for a roundrect pad, `roundrect_rratio` (0–0.5, default 0.25). |
+| `create_footprint` | Create a new footprint (`.kicad_mod`) file from a pad layout description. Each pad may set its own `layers` (KiCad file names, written in KiCad's order), `rotation` (normalised to 0–360 and included when sizing the generated outline and courtyard) and, for a roundrect pad, `roundrect_rratio` (0–0.5, default 0.25). |
 | `edit_footprint_pad` | Atomically edit or renumber matching pads, including valid circle/rect/oval/roundrect shape transitions, independent dimensions, and the pad's zone connection override. Edits the first pad with the number, or every pad that shares it with `match_all`; `new_number` renumbers. A file changed since it was read is refused as a conflict. |
 | `set_footprint_graphics` | Append, replace or delete the drawn shapes (lines, arcs, rectangles, circles, polygons) on one layer of a library footprint file. New shapes are rounded to the nanometre and written in KiCad's layout and arc direction; text, pads and other layers are never touched. Refuses to remove shapes that belong to a group. |
 | `set_footprint_models` | Append, replace or delete the 3D model references in a library footprint file. `replace` rewrites the whole set; new models are written last, in KiCad's layout, and every other byte of the file is left as it was. A model path is written as given and not checked. |
@@ -356,13 +358,18 @@ and Windows servers do not.
 | `get_jlcpcb_database_stats` | Statistics about the local JLCPCB cache: part count, last updated, file size. |
 | `enrich_datasheets` | Fetch and cache datasheet URLs for all components in a schematic (LCSC API). |
 | `get_datasheet_url` | Retrieve the datasheet URL for a component by MPN or LCSC ID — from the local JLCPCB catalog first, falling back to the LCSC API. |
-| `check_freerouting` | Locate a Freerouting installation, including KiCad PCM plugin directories, then report `engine_found`, `native_mcp_available`, and `bridge_available` as separate observed facts. |
+| `check_freerouting` | Locate a Freerouting installation, including KiCad PCM plugin directories, then report `engine_found`, `native_mcp_available`, and `bridge_available` as separate observed facts, with `ready` when all of them hold. A failed check sends the last 4,000 bytes of Freerouting's stderr; a working one sends none. |
 | `route_specctra_dsn` | Route a DSN through the discovered local Freerouting JAR's native headless MCP server and create a new SES without cloud upload or replacement. The owned unauthenticated service is loopback-only; its child is reaped on every exit path. |
 
 Migration from the former `autoroute` tool: use `export_specctra_dsn`,
 `route_specctra_dsn`, then `plan_specctra_ses_import` / `apply_specctra_ses`.
 Konnect delegates routing to Freerouting's native MCP server instead of duplicating
 the router or relying on the KiCad ActionPlugin workflow.
+
+Every launch of the JAR passes `--usage_and_diagnostic_data.disable_analytics=true`,
+which turns off the usage analytics Freerouting otherwise sends to
+`api.freerouting.app`. Freerouting also asks `api.github.com` for its latest release
+each time it starts, and has no setting to turn that off.
 
 ---
 
