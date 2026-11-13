@@ -26,11 +26,17 @@ routing, ERC/DRC, design-review audits, JLCPCB part search, reference
 circuits, and a full manufacturing export pipeline — with bundled skills and agents
 that teach Claude KiCad conventions out of the box.
 
-> **Status: beta, and free to use until 1.0.** The core toolchain is tested and
-> working, but this is a young release and it wants real-world mileage. Bug
-> reports and feature requests are welcome in
-> [Issues](https://github.com/Orchis-ai-LLC/Konnect-EDA/issues). Konnect-EDA is
-> closed source; to help build it, [sign up as a contributor](https://orchis.ai/konnect/join).
+> **Status: beta.** The core toolchain is tested and working, but this is a
+> young release and it wants real-world mileage. Bug reports and feature requests
+> are welcome in [Issues](https://github.com/Orchis-ai-LLC/Konnect-EDA/issues).
+> Konnect-EDA is closed source; to help build it,
+> [sign up as a contributor](https://orchis.ai/konnect/join).
+
+**Free for students, hobbyists and individual developers, now and after 1.0.**
+Everyone can use Konnect-EDA free during the beta. From 1.0, personal, hobby,
+student and individual developer use stays free, with a free license key. Only
+businesses need a commercial license. See
+[licensing](https://konnect-eda.orchis.ai/licensing/).
 
 **Runs on your machine.** Konnect-EDA sends nothing to Orchis.ai: no telemetry, no
 analytics, no update checks. See
