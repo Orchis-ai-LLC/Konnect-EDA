@@ -53,10 +53,10 @@ directly:
 - **Run design checks** — ERC, DRC, connectivity validation, decoupling audits,
   power-rail review, BOM health checks
 - **Export production files** — Gerbers, drill, BOM, pick-and-place, 3D models, PDF
-- **Search JLCPCB parts** — find in-stock components in a local 2.5M-part catalog and
+- **Search JLCPCB parts** — search a local snapshot of the JLCPCB parts catalog and
   suggest alternatives
-- **Start from reference circuits** — USB-C, LDO, buck converter, STM32, I2C, LED
-  templates with verified component values
+- **Start from reference circuits** — USB-C, LDO, buck converter, STM32, I2C and LED
+  templates
 - **Watch it happen** — a live schematic viewer auto-refreshes as the AI edits
 
 The full tool catalog is in [tool-directory.md](tool-directory.md).
@@ -263,8 +263,10 @@ Konnect-EDA is commercial, closed-source software from Orchis.ai LLC. See
 - **Free during the beta.** Until version 1.0, anyone can download and use
   Konnect-EDA free of charge, for personal or business work.
 - **License keys from 1.0.** Every installation will need a license key, free
-  ones included. Personal, hobby and student use stays free; business use will
-  need a paid commercial license.
+  ones included. Personal, hobby, student and individual developer use stays
+  free.
+- **Businesses need a commercial license.** [Request one](https://konnect-eda.orchis.ai/licensing/#request)
+  and tell us your use case.
 - **Your designs are yours.** The boards, schematics and design files you make
   with Konnect-EDA belong to you.
 - **Please don't pass the downloads on.** Share a link to this page instead.
