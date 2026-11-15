@@ -87,7 +87,7 @@ and Windows servers do not.
 | `edit_schematic_component` | Update shared fields consistently across every placed unit of a component, and move or hide any field's text. |
 | `get_schematic_component` | Get shared properties and every placed unit's position for a component. |
 | `list_schematic_components` | List all symbol instances with positions, values, footprints, and properties. |
-| `move_schematic_component` | Move the lowest-numbered unit to a new position and translate every other unit by the same delta. Does NOT adjust connected wires. Junction dots are re-judged, and a no-connect flag travels with the pin it protects. |
+| `move_schematic_component` | Move the lowest-numbered unit to a new position and translate every other unit by the same delta. Does NOT adjust connected wires. Junction dots are re-judged, and a no-connect flag travels with the pin it protects. Refused, writing nothing, when a pin would land on another net. |
 | `rotate_schematic_component` | Set the lowest-numbered unit's absolute rotation and rotate every other unit by the same delta. Does NOT adjust connected wires; junction dots are re-judged where the pins turned, and a no-connect flag travels with the pin it protects. |
 | `move_connected` | Move a symbol and stretch/shrink connected wire stubs to preserve connections. |
 | `move_region` | Move all symbols within a bounding box by a given offset. |
@@ -110,7 +110,7 @@ and Windows servers do not.
 | `batch_add_wire` | Add multiple wire segments in a single file read/write cycle. |
 | `delete_schematic_wire` | Delete a wire segment by UUID or by matching start/end coordinates, pruning the junction dots it leaves unjustified. |
 | `batch_delete_schematic_wire` | Delete multiple wire segments in a single file read/write cycle, pruning the junction dots they leave unjustified. |
-| `split_wire_at_point` | Split a wire at a given point, creating two segments and a junction. |
+| `split_wire_at_point` | Split a wire at a given point, creating two segments and a junction. Joins nothing new: writes no junction where another wire crosses the point, and refuses as `plan_blocked`, naming the wire, where another wire ends there without a junction. |
 | `add_schematic_net_label` | Add a net label (`net_label`, `global_label`, or `hierarchical_label`). |
 | `delete_schematic_net_label` | Delete a net label by net name and position. |
 | `rotate_schematic_label` | Rotate a net label to a new angle and update its justify direction. |
@@ -221,7 +221,7 @@ and Windows servers do not.
 
 | Tool | Description |
 |------|-------------|
-| `set_board_size` | Add a rectangular board outline of the given dimensions on the Edge.Cuts layer. Appends — clear the old edges with `delete_graphics` first. |
+| `set_board_size` | Replace the board outline with a rectangle of the given dimensions on Edge.Cuts. Refuses, writing nothing, when Edge.Cuts holds anything but lines or its lines draw more than one outline (a cut-out or slot). |
 | `get_board_info` | Return metadata about the PCB: title, revision, company, paper size (with `paper_size_mm` dimensions on a custom User size), `layer_count`, `copper_layer_count`, and `net_count` (IPC, falls back to a file parse that counts from the tree, so KiCad 10 boards report real numbers instead of 0). |
 | `get_board_extents` | Return the box enclosing the board's items, footprint text excluded. Reads the live board where it can (`board_source`); a saved-file answer names what it could not measure, and a live answer names each item class KiCad would not list (tables and generators on KiCad 10). |
 | `get_layer_list` | Return the board's enabled layers: `name`, `display_name` and a `copper` flag, plus the file-backed `id`, `type` and optional `user_name`. IPC-first, so an unsaved stackup change in a live KiCad is visible; `board_source` (`auto`/`live`/`saved`) selects the board state and `sources` names where each part of the answer came from. |
@@ -258,7 +258,7 @@ and Windows servers do not.
 | `place_component_array` | Place multiple copies of a footprint in a grid or line array via KiCAD IPC. |
 | `align_components` | Align multiple footprints along a common X or Y axis via KiCAD IPC. |
 | `duplicate_component` | Duplicate an existing footprint at a new position via KiCAD IPC. |
-| `update_footprints_from_library` | Refresh placed footprints from their libraries on the board open in KiCad, as KiCad's own Update Footprints from Library does, in one undoable KiCad commit; never edits the board file. Keeps placement, ids, nets, the instance's own texts and fields, board-only/BOM/position/DNP flags and the schematic link; takes pads, drawings, description, mounting style, clearance and mask/paste overrides and 3D models from the library. Dry run by default; apply with the dry run's `plan_revision`. Reports `changed_domains`, `pads_added`, `pads_removed` and `nets_dropped` per footprint. |
+| `update_footprints_from_library` | Refresh placed footprints from their libraries on the board open in KiCad, as KiCad's own Update Footprints from Library does, in one undoable KiCad commit; never edits the board file. Keeps placement, ids, nets, the instance's own texts and fields, board-only/BOM/position/DNP flags and the schematic link; takes pads, drawings, description, mounting style, clearance and mask/paste overrides and 3D models from the library. Dry run by default. To apply the reviewed plan, set `dry_run: false` and pass the dry run's returned `plan_revision` as `expected_plan_revision`. Reports `changed_domains`, `pads_added`, `pads_removed` and `nets_dropped` per footprint. |
 | `get_board_2d_view` | Render the board with kicad-cli and return a base64 PNG. This is the 3-D render viewed from the top, not a layer plot, and takes no layer selection — use `export_svg` for layer-aware output. |
 
 ### `pcb_routing` · 15 tools
@@ -380,7 +380,7 @@ each time it starts, and has no setting to turn that off.
 
 | Tool | Description |
 |------|-------------|
-| `run_drc` | Run KiCad's complete configured DRC ruleset — schematic parity included when the board's project has a root schematic to compare against, reported as unchecked (`null`, with a diagnostic quoting KiCad) when KiCad says it could not fetch one — and return structured violation results. Each violation item names what owns it — `owner.kind` `board` or `footprint` (with the reference), plus `item_kind`, `layer`, and `ownership_status` — so an `Edge.Cuts` hit on a footprint's own cutout is distinguishable from one on the board outline. |
+| `run_drc` | Run KiCad's complete configured DRC ruleset — schematic parity included when the board's project has a root schematic to compare against, reported as unchecked (`null`, with a diagnostic quoting KiCad) when KiCad says it could not fetch one — and return structured violation results. By default it checks the saved board file (`source: saved_file`) and excludes unsaved editor changes. Use `sync_live_board: true` to save and verify the matching open board before checking. Each violation item names what owns it — `owner.kind` `board` or `footprint` (with the reference), plus `item_kind`, `layer`, and `ownership_status` — so an `Edge.Cuts` hit on a footprint's own cutout is distinguishable from one on the board outline. |
 | `set_design_rules` | Set board-level design rules (clearance, trace width, via size, hole size, hole-to-hole) in the sibling `.kicad_pro` project file. `min_via_drill` is KiCad's minimum hole size and applies to every drilled hole, pad holes included. Only the given values change, reported in `changed`; `rules` holds all five as stored. The board file is not modified. |
 | `get_design_rules` | Return the current design rule constraints from the sibling `.kicad_pro` project file, with `null` for one the file lacks. |
 | `set_predefined_sizes` | Write the PCB editor Pre-defined Sizes list (track widths and via pad/drill pairs) into the sibling `.kicad_pro`. These fill the Track/Via dropdowns; they are not DRC limits. |

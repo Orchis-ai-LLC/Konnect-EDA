@@ -253,6 +253,38 @@ Needs the WebView2 runtime (pre-installed on Windows 10/11) and a KiCad install 
 `kicad-cli` (auto-discovered, or pass `--kicad-cli <path>`). The viewer ships in
 the plugin package, beside the server binary.
 
+## JLCPCB parts database
+
+The JLCPCB tools search a local SQLite file in Konnect-EDA's own format. Ask your
+AI to run `download_jlcpcb_database` to create it. The tool downloads the
+[kicad-jlcpcb-tools](https://bouni.github.io/kicad-jlcpcb-tools) community feed and
+converts it. It's a snapshot, so check stock before you order.
+
+By default the file is `%APPDATA%\konnect\jlcpcb.db` on Windows and
+`~/.konnect/jlcpcb.db` on macOS and Linux. To keep it somewhere else, set the
+**JLCPCB DB** field in the plugin settings dialog, or `jlcpcb_db_path` in your
+configuration file. Leave the setting empty to use the default.
+
+The file holds one table, `components`:
+
+| Column | Type | Holds |
+| --- | --- | --- |
+| `LCSC` | text, primary key | LCSC part number, such as `C14663` |
+| `MFR_Part` | text | Manufacturer's part number |
+| `Package` | text | Package name |
+| `Manufacturer` | text | Manufacturer |
+| `Library_Type` | text | JLCPCB library type, Basic, Preferred or Extended |
+| `Description` | text | Part description |
+| `Datasheet` | text | Datasheet URL |
+| `Price` | real | Unit price in USD, at the feed's first price break |
+| `Stock` | integer | Units in stock when the snapshot was made |
+| `Category` | text | First and second category, joined with ` / ` |
+
+Databases made for other tools, including the raw kicad-jlcpcb-tools and yaqwsx
+files and the one KiCAD MCP Server builds, use different tables and won't work
+here. A path to one of those is accepted, and the search tools then fail with an
+SQL error such as `no such table` or `no such column`. Run `download_jlcpcb_database` instead.
+
 ## Requirements
 
 - KiCad 10 (Windows is the most-tested platform; macOS works from the release
