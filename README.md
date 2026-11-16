@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="resources/images/KiCAD-MCP-Server-rust.svg" alt="Konnect-EDA logo" height="200" />
+<img src="resources/images/logo-new.jpg" alt="Konnect-EDA logo" height="200" />
 
 # Konnect-EDA
 
