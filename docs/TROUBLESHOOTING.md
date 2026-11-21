@@ -344,9 +344,11 @@ than guessing. Optionally pass `references` to restrict the scan.
 
 Review `candidates`, then call the tool again with `dry_run: false` and the
 exact returned `plan_revision` as `expected_plan_revision`. All candidates are
-repaired in one KiCAD undo commit. Placement, footprint identity, symbol path,
-pad nets and non-shape children are preserved; a live read-back verifies that
-the phantom pads are gone and the expected drawing shapes returned. Save the
+repaired in one KiCAD undo commit. Only the missing drawing shapes are added,
+drawn as the library draws them. Placement, footprint identity, symbol path and
+every pad, drawing and text the footprint still has go back unchanged. A live
+read-back verifies that the phantom pads are gone and the expected drawing
+shapes returned. Save the
 board and run DRC afterward. Ctrl-Z reverses the complete repair if its visual
 result is not what you expect.
 

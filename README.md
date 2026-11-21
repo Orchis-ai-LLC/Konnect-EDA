@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="resources/images/logo-new.jpg" alt="Konnect-EDA logo" height="200" />
+<img src="resources/images/KiCAD-MCP-Server-rust.svg" alt="Konnect-EDA logo" height="200" />
 
 # Konnect-EDA
 
@@ -282,8 +282,14 @@ The file holds one table, `components`:
 
 Databases made for other tools, including the raw kicad-jlcpcb-tools and yaqwsx
 files and the one KiCAD MCP Server builds, use different tables and won't work
-here. A path to one of those is accepted, and the search tools then fail with an
-SQL error such as `no such table` or `no such column`. Run `download_jlcpcb_database` instead.
+here. The JLCPCB tools refuse a path to one of those and say which table or column
+is missing. In v0.14.1 they fail with an SQL error such as `no such table` or
+`no such column` instead. Either way, set the path to a new file or leave it empty,
+then run `download_jlcpcb_database`.
+
+A file may hold more than this. Extra columns in `components` and extra tables are
+ignored, so one file can serve another tool too, as long as it has every column in
+the table above.
 
 ## Requirements
 
